@@ -2,7 +2,8 @@ import { genrateStreamToken } from "../lib/stream.js";
 
 export async function getStreamToken(req,res){
  try{  
-     const token=genrateStreamToken(req.user.id);
+     const token= await genrateStreamToken(req.user.id);
+     
      res.status(200).json({token})
     }catch(error){
     console.log("Error in generating Stream token",error.message);

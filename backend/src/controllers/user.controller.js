@@ -7,7 +7,7 @@ export async function getRecommendedUsers(req,res){
     const currentUser=req.user
 
     const recommendedUsers=await User.find({
-        $ans:[
+        $and:[
             {_id:{$ne:currentUserId}},
             {_id:{$nin:currentUser.friends}},
             {isOnboarded:true}
@@ -33,45 +33,63 @@ export async function getMyFriends(req,res){
    }
 }
 
-export async function sendFriendRequest(req,res){
-    try{
-        const myId=req.user._id;
-        const {id: recipientId}=req.params;
+export async function sendFriendRequest(req, res) {
+  try {
+    const myId = req.user._id.toString();
+    const { id: recipientId } = req.params;
+//     console.log("myId:", myId);
+// console.log("recipientId:", recipientId);
 
-        if(myId===recipientId){
-            res.status(400).json({message:"You can sent friend req to Yourself"})
-        }
+if (myId.toString() === recipientId) {
+  console.log("Returned: sending request to yourself");
+  return res.status(400).json({ message: "You can't send friend request to yourself" });
+}
 
-        const recipient=await User.findById(recipientId)
-        if(!recipient){
-            return res.status(404).json({message:"Recipient not Found"});
-        }
+const recipient = await User.findById(recipientId);
+// console.log("recipient:", recipient);
 
-        if(recipient.friends.includes(myId)){
-            return res.status(400).json({message:"You both are already friends"});
-        }
+if (!recipient) {
+  console.log("Returned: recipient not found");
+  return res.status(404).json({ message: "Recipient not found" });
+}
 
-        const existingRequest=await FriendRequest.findOne({
-            $or:[
-                {sender:myId,recipient:recipientId},
-                {sender:recipientId,recipient:myId}
-            ]
-        })
+const isFriend = recipient.friends.some(friendId =>
+  friendId.toString() === myId.toString()
+);
 
-        if(existingRequest){
-           return res.status(400).json({message:"Request already done between you and the user"});
-        }
+// console.log("isFriend:", isFriend);
 
-        const friendRequest=await FriendRequest.create({
-            sender:myId,
-            recipient:recipientId
-        })
+if (isFriend) {
+  console.log("Returned: already friends");
+  return res.status(400).json({ message: "Already friends" });
+}
 
-        res.status(201).json(friendRequest);
-    }catch{
-        console.log("Error in Sending friendReq",error.message);
-        res.status(500).json({message:"Internal Servor Error while sending Friend Request"})
-    }
+const existingRequest = await FriendRequest.findOne({
+  $or: [
+    { sender: myId, recipient: recipientId },
+    { sender: recipientId, recipient: myId },
+  ],
+});
+
+// console.log("existingRequest:", existingRequest);
+
+// console.log(existingRequest); 
+
+if (existingRequest) {
+  console.log("Returned: request already exists");
+  return res.status(400).json({ message: "Request already exists" });
+}
+
+    const friendRequest = await FriendRequest.create({
+      sender: myId,
+      recipient: recipientId,
+    });
+
+    res.status(201).json(friendRequest);
+  } catch (error) {
+    console.error("Error in sendFriendRequest controller", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 }
 
 export async function acceptFriendRequest(req,res){
@@ -85,7 +103,7 @@ export async function acceptFriendRequest(req,res){
      }
 
     //verifying is the current user is recipient or not 
-     if(friendRequest.recipient.toString()!==req.user._id){
+     if(friendRequest.recipient.toString()!==req.user._id.toString()){
         return res.status(401).json({message:"you are not authorized to accept the req"})
      }
 
@@ -131,8 +149,8 @@ export async function getFriendRequest(req,res){
 
 export async function getOutgoingFriendReqs(req,res){
     try{
-        const outgoingRequests=FriendRequest.find({
-            sender:req.user.id,
+        const outgoingRequests=await FriendRequest.find({
+            sender:req.user._id,
             status:"pending"
         }).populate("recipient","fullName profilePic nativeLanguage learningLanguage")
 

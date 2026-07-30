@@ -1,6 +1,7 @@
-import axios from "axios"
+import axios from "axios";
+
 
 export const axiosInstance = axios.create({
-    baseURL:"http://localhost:8000/api/",
-    withCredentials:true  // to send the cookie with the request 
-})
+  baseURL: "http://localhost:8000/api",
+  withCredentials: true, // send cookies with the request
+});

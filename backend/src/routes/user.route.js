@@ -21,6 +21,6 @@ router.put("/friend-request/:id/accept",acceptFriendRequest);
 
 // for the notification purpose from where user will accept req
 router.get("/friend-requests",getFriendRequest)
-router.get("/friend-requests",getOutgoingFriendReqs)
+router.get("/outgoing-friend-requests",getOutgoingFriendReqs)
 
 export default router;
