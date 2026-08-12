@@ -96,3 +96,6 @@ STREAM_API_SECRET=your_stream_api_secret
 
 > **Note:** Do not upload your `.env` file or API secrets to GitHub.
 
+## LIVE DEMO
+https://fluentbridge-a-real-time-language-exchange-pla-production.up.railway.app/
+
