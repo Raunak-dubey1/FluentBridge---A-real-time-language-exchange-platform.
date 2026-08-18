@@ -1,0 +1,116 @@
+import FriendCard from "../components/FriendCard.jsx";
+import NoFriendsFound from "../components/NoFriendsFound.jsx";
+import { getUserFriends } from "../lib/api.js";
+import { useQuery } from "@tanstack/react-query";
+
+export const FriendPage = () => {
+  const {
+    data: friends = [],
+    isLoading: loadingFriends,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["friends"],
+    queryFn: getUserFriends,
+  });
+
+  // Loading state
+  if (loadingFriends) {
+    return (
+      <div className="min-h-screen bg-base-200 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          {/* Page Header Skeleton */}
+          <div className="mb-8">
+            <div className="h-8 w-48 animate-pulse rounded-lg bg-base-300" />
+            <div className="mt-2 h-4 w-72 animate-pulse rounded bg-base-300" />
+          </div>
+
+          {/* Friend Cards Skeleton */}
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
+              <div
+                key={item}
+                className="rounded-2xl border border-base-300 bg-base-100 p-5 shadow-sm"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 animate-pulse rounded-full bg-base-300" />
+
+                  <div className="flex-1">
+                    <div className="h-4 w-24 animate-pulse rounded bg-base-300" />
+                    <div className="mt-2 h-3 w-32 animate-pulse rounded bg-base-300" />
+                  </div>
+                </div>
+
+                <div className="mt-5 h-9 w-full animate-pulse rounded-lg bg-base-300" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
+  // Empty state
+  if (friends.length === 0) {
+    return (
+      <div className="min-h-screen bg-base-200 px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold tracking-tight text-base-content sm:text-4xl">
+              My Friends
+            </h1>
+
+            <p className="mt-2 text-base-content/60">
+              Connect with people and grow your network.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-base-300 bg-base-100 p-8 shadow-sm">
+            <NoFriendsFound />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main page
+  return (
+    <div className="min-h-screen bg-base-200 px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold tracking-tight text-base-content sm:text-4xl">
+                My Friends
+              </h1>
+
+              <span className="badge badge-primary badge-lg">
+                {friends.length}
+              </span>
+            </div>
+
+            <p className="mt-2 text-base-content/60">
+              People you're connected with.
+            </p>
+          </div>
+        </div>
+
+        {/* Friends Grid */}
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {friends.map((friend) => (
+            <div
+              key={friend._id}
+              className="group rounded-2xl border border-base-300 bg-base-100 p-1 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+            >
+              <FriendCard friend={friend} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FriendPage;
