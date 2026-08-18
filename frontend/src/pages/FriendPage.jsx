@@ -114,3 +114,5 @@ export const FriendPage = () => {
 };
 
 export default FriendPage;
+
+//everything is fine just checking for gmail verification
